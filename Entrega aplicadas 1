@@ -1,0 +1,240 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyPSJiPExsSL/KCAvkOxMrXW",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/meg190/aplicadas-II-colabs/blob/main/Entrega%20aplicadas%201\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#Grafos\n",
+        "##Representación de la influencia\n",
+        "###1. Matriz de adyacencia ponderada $𝑊_{ij}$\n",
+        "$$I1\\hspace{1,5cm}I2\\hspace{0,4cm}I3\\hspace{0,8cm}I4\\hspace{0,8cm}I5$$\n",
+        "$$W_{ij}=\\begin{bmatrix}\n",
+        "0 &0.8  &0  &0.6  &0.7  \\\\\n",
+        "0 &0  &0.9  &0.5  &0  \\\\\n",
+        "0.4 &0  &0  &0.8  &0  \\\\\n",
+        "0 &0  &0  &0  &0.9  \\\\\n",
+        "0 &0.6  &0.7  &0  &0  \\\\\n",
+        "\\end{bmatrix}$$\n",
+        "\n",
+        "Donde los valores en 0 no representan influencia indirecta, y los valores son los pesos que representan que tan fuerte es la conexión entre los influencers.\n",
+        "###2. Dibujo de grafo derigido con pesos"
+      ],
+      "metadata": {
+        "id": "7sPaAveESC-n"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import IPython.display as IP\n",
+        "\n",
+        "iframe = IP.IFrame(\n",
+        "  src=\"https://www.geogebra.org/classic/pr7bjks5\",\n",
+        "  width=\"1200px\",\n",
+        "  height=\"800px\"\n",
+        "  )\n",
+        "\n",
+        "IP.display_html(iframe)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 841
+        },
+        "id": "5-TNN84pUk2C",
+        "outputId": "cf534944-3d69-440b-8272-ddc2c7513fd3"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "\n",
+              "        <iframe\n",
+              "            width=\"1200px\"\n",
+              "            height=\"800px\"\n",
+              "            src=\"https://www.geogebra.org/classic/pr7bjks5\"\n",
+              "            frameborder=\"0\"\n",
+              "            allowfullscreen\n",
+              "            \n",
+              "        ></iframe>\n",
+              "        "
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "##Análisis de influencia global\n",
+        "\n",
+        "Para entender la influencia en el grafo, se debe aclarar que es un grafo dirigido, es decir que está influenciado por pesos. En un grafo dirigido, cada conexión tiene una dirección (quién influye sobre quién) y un peso (qué tan fuerte es esa influencia).Por lo tanto:.\n",
+        "\n",
+        "*   Un peso saliente representa cuánto influye un nodo sobre otros\n",
+        "*   Un peso entrante representa cuánto es influenciado un nodo por los demás.\n",
+        "\n",
+        "###1. ¿Qué influencer tiene la mayor suma de pesos salientes (es decir, influye más en los demás)?\n",
+        "\n",
+        "Teniendo en cuenta el contexto anterior, para poder responder esta pregunta, se deben sumar todos los pesos de las flechas que salen de cada influencer (Pesos salientes).Estas sumas se realizan mediante el siguiente codigo:"
+      ],
+      "metadata": {
+        "id": "O48hMCfyVpbt"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "influencias = {'I1': {'I2': 0.8, 'I4': 0.6, 'I5': 0.7},'I2': {'I3': 0.9, 'I4': 0.5},'I3': {'I1': 0.4, 'I4': 0.8},'I4': {'I5': 0.9},'I5': {'I2': 0.6, 'I3': 0.7}}\n",
+        "salientes = {}\n",
+        "\n",
+        "for emisor, conexiones in influencias.items():\n",
+        "    total = sum(conexiones.values())  # sumamos los pesos que emite\n",
+        "    salientes[emisor] = total\n",
+        "\n",
+        "print(\"Pesos salientes por influencer (quién influye más en los demás):\")\n",
+        "for influencer, total in salientes.items():\n",
+        "    print(f\"{influencer}: {round(total, 1)}\")\n",
+        "\n",
+        "mas_influyente = max(salientes, key=salientes.get)\n",
+        "\n",
+        "print(f\"\\nEl influencer que más influye en los demás es: {mas_influyente} \"\n",
+        "      f\"con un total de {round(salientes[mas_influyente], 1)}\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "cAORQ6i_Woee",
+        "outputId": "586794b3-aea7-45d9-9d21-2a9d4bbe1134"
+      },
+      "execution_count": 1,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Pesos salientes por influencer (quién influye más en los demás):\n",
+            "I1: 2.1\n",
+            "I2: 1.4\n",
+            "I3: 1.2\n",
+            "I4: 0.9\n",
+            "I5: 1.3\n",
+            "\n",
+            "El influencer que más influye en los demás es: I1 con un total de 2.1\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Segun el calculo anterior, I1 tiene mayor suma de pesos salientes, es decir que es el más influyente, ya que si vemos la matriz, tiene poder directo sobre tres nodos: I2, I4 e I5. Por lo tanto, I1 es el centro emisor de la matriz, es decir, el nodo que más envía influencia porque es el de mayores pesos salientes."
+      ],
+      "metadata": {
+        "id": "xzRpbFZLZRjA"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###2. ¿Qué influencer tiene la mayor suma de pesos entrantes (es decir, es más influenciado por otros)?\n",
+        "Siguiendo el mismo razonamiento, para saber quien es el más influenciado se deben sumar todos los pesos de las flechas que apuntan hacia cada influencer (Pesos entrantes).\n"
+      ],
+      "metadata": {
+        "id": "GimqwAB0k0Qx"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "influencias = {'I1': {'I2': 0.8, 'I4': 0.6, 'I5': 0.7},'I2': {'I3': 0.9, 'I4': 0.5},'I3': {'I1': 0.4, 'I4': 0.8},'I4': {'I5': 0.9},'I5': {'I2': 0.6, 'I3': 0.7}}\n",
+        "\n",
+        "entrantes = {'I1': 0, 'I2': 0, 'I3': 0, 'I4': 0, 'I5': 0}\n",
+        "\n",
+        "for emisor, conexiones in influencias.items():\n",
+        "    for receptor, peso in conexiones.items():\n",
+        "        entrantes[receptor] += peso\n",
+        "print(\"Pesos entrantes por influencer:\")\n",
+        "for influencer, total in entrantes.items():\n",
+        "    print(f\"{influencer}: {round(total, 1)}\")\n",
+        "\n",
+        "mas_influenciado = max(entrantes, key=entrantes.get)\n",
+        "\n",
+        "print(f\"\\nEl influencer más influenciado por otros es: {mas_influenciado} con un total de {round(entrantes[mas_influenciado], 1)}\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "-LsuNBAwmm_y",
+        "outputId": "1d79ff19-3e6a-4233-a7a9-1a228fda0ca8"
+      },
+      "execution_count": 3,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Pesos entrantes por influencer:\n",
+            "I1: 0.4\n",
+            "I2: 1.4\n",
+            "I3: 1.6\n",
+            "I4: 1.9\n",
+            "I5: 1.6\n",
+            "\n",
+            "El influencer más influenciado por otros es: I4 con un total de 1.9\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Según el resultado del código anterior, I4 es el más influenciable ya que recibe influencia desde muchos nodos (I1, I2, e I3), por lo tanto, I4 actúa como punto de convergencia de la información en la matriz."
+      ],
+      "metadata": {
+        "id": "xVzRuXf_m2ax"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "##Impacto de un Influencer clave\n",
+        "\n",
+        "###1. Si I1 deja de publicar contenido, ¿cómo afecta la influencia en la red?\n",
+        "En este caso como I1 ya no influe más, entonces se deben quitar todas las conexiones salientes de I1, por lo que se eliminarian la influencia hacia I2 (0.8), I4(0.6) e I5(0.7)"
+      ],
+      "metadata": {
+        "id": "wAfJGy2Knbzh"
+      }
+    }
+  ]
+}
